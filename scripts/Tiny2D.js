@@ -42,7 +42,7 @@ class Vector {
 class Entity {
   /**
    * @constructor
-   * @param {string} shape - 形(circle, rect, line)
+   * @param {string} shape - 形('circle' or 'rect' or 'line')
    * @param {string} motionType  - 動きのタイプ(static, dynamic)
    */
   constructor(shape, motionType) {
@@ -58,14 +58,14 @@ class CircleEntity extends Entity {
    * @param {number} x - 中心のx座標
    * @param {number} y - 中心のy座標
    * @param {number} radius - 半径
-   * @param {string} motionType - 動きのタイプ('static', 'dynamic')
+   * @param {string} motionType - 動きのタイプ('static' or'dynamic')
    */
   constructor(x, y, radius, motionType) {
     super('circle', motionType);
     this.x = x;
     this.y = y;
     this.radius = radius;
-    this.velocity = new Vector(0, 0);
+    this.velocity = new Vector(3, 3);
   }
 
   /**
@@ -104,14 +104,15 @@ class Engine {
    * @param {number} elapsedTime 
    */
   step(elapsedTime) {
-    const gravity = this.gravity;
-    gravity.mul(elapsedTime, elapsedTime);
+    // const gravity = this.gravity;
+    // gravity.mul(elapsedTime, elapsedTime);
     const entities = this.entities;
 
     // entityを移動する
     entities.forEach((entity) => {
-      if (entity.type === 'static') continue;
-      entity.move(e.velocity.x, e.velocity.y);
+      if (entity.motionType === 'dynamic') {
+        entity.move(entity.velocity.x * elapsedTime, entity.velocity.y * elapsedTime);
+      }
     });
   }
 }
