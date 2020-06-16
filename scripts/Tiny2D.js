@@ -83,7 +83,33 @@ class CircleEntity extends Entity {
     const dist = Math.hypot(this.x - circle.x, this.y - circle.y);
     if (dist > this.radius + circle.radius) return;
 
-    console.log('collide with circle!');
+    console.log('collision occured!');
+
+    // 自身が止まっている場合は相手を基準にして処理し直す
+    if (this.motionType === 'static') {
+      console.log(this.radius);
+      circle.collideWithCircle(this);
+      return;
+    }
+
+    const overlap = (this.radius + circle.radius) - dist;
+    const v = new Vector(circle.x - this.x, circle.y - this.y);
+    // 自身の中心からもう一方の中心に向かう向きの単位ベクトル
+    const unitVectorA = v.mul(1 / dist);
+    // 逆向きの単位ベクトル
+    const unitVectorB = unitVectorA.mul(-1);
+
+    // 相手が止まっている場合
+    if (circle.motionType === 'static') {
+      // めり込みを戻す
+      this.move(unitVectorB.x * overlap, unitVectorB.y * overlap);
+      // 速度ベクトルを反射させる
+      const dotA = this.velocity.dot(unitVectorA);
+      this.velocity = this.velocity.add(unitVectorA.mul(-2 * dotA));
+
+    } else {
+
+    }
   }
 }
 
@@ -131,15 +157,12 @@ class Engine {
       let entityB = entities[j];
       if (entityA.motionType === 'static' && entityB.motionType === 'static') continue;
 
-      // どちらかの物体は動いている=>どちらかは円
-      // entityAが必ず円になるようにする
+      // entityAが円になるようにする(どちらかは'dynamic'=>円)
       if (entityA.shape !== 'circle') [entityA, entityB] = [entityB, entityA];
 
-      if (entityB.shape === 'circle') {
-        entityA.collideWithCircle(entityB);
-      } else if (entityB.shape === 'line') {
-      } else if (entityB.shape === 'rectangle') {
-      }
+      if (entityB.shape === 'circle') entityA.collideWithCircle(entityB);
+      else if (entityB.shape === 'line') entityB.collideWithLine(entityB);
+      else if (entityB.shape === 'rectangle') entityB.collideWithRectangle(entityB);
     }
 
     // 床との衝突判定&衝突処理

@@ -26,13 +26,10 @@
 
     engine = new Engine(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT, 0, 10);
     const circle = new CircleEntity(100, 100, 10, 'dynamic');
-    const circle2 = new CircleEntity(200, 150, 20, 'dynamic');
-    const circle3 = new CircleEntity(300, 300, 15, 'dynamic');
-    circle.velocity.x = -5;
-    circle2.velocity.x = 10;
+    const circle2 = new CircleEntity(150, 500, 50, 'static');
+
     engine.entities.push(circle);
     engine.entities.push(circle2);
-    engine.entities.push(circle3);
 
     render();
   }
