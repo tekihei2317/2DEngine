@@ -33,6 +33,9 @@ class Vector {
   cross(vec) {
     return this.x * vec.y - this.y * vec.x;
   }
+  print() {
+    console.log(`(${this.x}, ${this.y})`);
+  }
 }
 
 // 物体を扱うクラス(基底クラス)
@@ -83,11 +86,8 @@ class CircleEntity extends Entity {
     const dist = Math.hypot(this.x - circle.x, this.y - circle.y);
     if (dist > this.radius + circle.radius) return;
 
-    console.log('collision occured!');
-
     // 自身が止まっている場合は相手を基準にして処理し直す
     if (this.motionType === 'static') {
-      console.log(this.radius);
       circle.collideWithCircle(this);
       return;
     }
@@ -99,16 +99,41 @@ class CircleEntity extends Entity {
     // 逆向きの単位ベクトル
     const unitVectorB = unitVectorA.mul(-1);
 
-    // 相手が止まっている場合
+    // 相手が動いているかどうかで場合分け
     if (circle.motionType === 'static') {
       // めり込みを戻す
       this.move(unitVectorB.x * overlap, unitVectorB.y * overlap);
+
       // 速度ベクトルを反射させる
       const dotA = this.velocity.dot(unitVectorA);
       this.velocity = this.velocity.add(unitVectorA.mul(-2 * dotA));
 
     } else {
+      console.log('collision between moving circles occured!')
+      // めり込みを戻す
+      this.move(unitVectorB.x * overlap / 2, unitVectorB.y * overlap / 2);
+      circle.move(unitVectorA.x * overlap / 2, unitVectorA.y * overlap / 2);
 
+      // 速度ベクトルの法線成分を入れ替える
+      const tangentVector = new Vector(-unitVectorA.y, unitVectorA.x);
+
+      // this.velocity===k1*unitVectorA+k2*tangentVector
+      const k1 = this.velocity.dot(unitVectorA);
+      const k2 = this.velocity.dot(tangentVector);
+      // circle.velocity===k3*unitVectorB+k4*tangentVector
+      const k3 = circle.velocity.dot(unitVectorB);
+      const k4 = circle.velocity.dot(tangentVector);
+
+      const v1 = unitVectorB.mul(k3).add(tangentVector.mul(k2));
+      const v2 = unitVectorA.mul(k1).add(tangentVector.mul(k4));
+      this.velocity.print();
+      circle.velocity.print();
+      this.velocity = v1;
+      circle.velocity = v2;
+      this.velocity.print();
+      circle.velocity.print();
+      // this.velocity = new Vector(k3 * unitVectorB + k2 * tangentVector);
+      // circle.velocity = new Vector(k1 * unitVectorA + k4 * tangentVector);
     }
   }
 }
