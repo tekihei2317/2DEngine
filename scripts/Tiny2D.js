@@ -82,58 +82,50 @@ class CircleEntity extends Entity {
    * 円との衝突判定
    * @param {CircleEntity} circle 
    */
-  collideWithCircle(circle) {
-    const dist = Math.hypot(this.x - circle.x, this.y - circle.y);
-    if (dist > this.radius + circle.radius) return;
+  collideWithCircle(peer) {
+    const dist = Math.hypot(this.x - peer.x, this.y - peer.y);
+    if (dist > this.radius + peer.radius) return;
 
     // 自身が止まっている場合は相手を基準にして処理し直す
     if (this.motionType === 'static') {
-      circle.collideWithCircle(this);
+      peer.collideWithCircle(this);
       return;
     }
 
-    const overlap = (this.radius + circle.radius) - dist;
-    const v = new Vector(circle.x - this.x, circle.y - this.y);
-    // 自身の中心からもう一方の中心に向かう向きの単位ベクトル
-    const unitVectorA = v.mul(1 / dist);
-    // 逆向きの単位ベクトル
-    const unitVectorB = unitVectorA.mul(-1);
+    console.assert(dist !== 0, 'zero division will occur');
+
+    const overlap = (this.radius + peer.radius) - dist;
+    const v = new Vector(peer.x - this.x, peer.y - this.y);
+    // 接線に垂直な単位ベクトル(自身の中心→もう一方の中心の向き)
+    const normalVector = v.mul(1 / dist);
+    // 接線に平行な単位ベクトル
+    const tangentVector = new Vector(-normalVector.y, normalVector.x);
 
     // 相手が動いているかどうかで場合分け
-    if (circle.motionType === 'static') {
-      // めり込みを戻す
-      this.move(unitVectorB.x * overlap, unitVectorB.y * overlap);
-
+    if (peer.motionType === 'static') {
+      // めり込みを戻す(いらない?)
+      this.move(-overlap * normalVector.x, -overlap * normalVector.y);
       // 速度ベクトルを反射させる
-      const dotA = this.velocity.dot(unitVectorA);
-      this.velocity = this.velocity.add(unitVectorA.mul(-2 * dotA));
+      // velocity===k*normalVector+l*tangentVectorを満たすkを求める
+      const k = this.velocity.dot(normalVector);
+      this.velocity = this.velocity.add(normalVector.mul(-2 * k));
 
     } else {
       console.log('collision between moving circles occured!')
-      // めり込みを戻す
-      this.move(unitVectorB.x * overlap / 2, unitVectorB.y * overlap / 2);
-      circle.move(unitVectorA.x * overlap / 2, unitVectorA.y * overlap / 2);
+      // めり込みを戻す(いらない?)
+      this.move(-normalVector.x * overlap / 2, -normalVector.y * overlap / 2);
+      peer.move(normalVector.x * overlap / 2, normalVector.y * overlap / 2);
 
-      // 速度ベクトルの法線成分を入れ替える
-      const tangentVector = new Vector(-unitVectorA.y, unitVectorA.x);
-
-      // this.velocity===k1*unitVectorA+k2*tangentVector
-      const k1 = this.velocity.dot(unitVectorA);
+      // this.velocity===k1*normalVector+k2*tangentVectorを満たすk1,k2を求める
+      const k1 = this.velocity.dot(normalVector);
       const k2 = this.velocity.dot(tangentVector);
-      // circle.velocity===k3*unitVectorB+k4*tangentVector
-      const k3 = circle.velocity.dot(unitVectorB);
-      const k4 = circle.velocity.dot(tangentVector);
+      // peer.velocity===k3*normalVector+k4*tangentVectorを満たすk3,k4を求める
+      const k3 = peer.velocity.dot(normalVector);
+      const k4 = peer.velocity.dot(tangentVector);
 
-      const v1 = unitVectorB.mul(k3).add(tangentVector.mul(k2));
-      const v2 = unitVectorA.mul(k1).add(tangentVector.mul(k4));
-      this.velocity.print();
-      circle.velocity.print();
-      this.velocity = v1;
-      circle.velocity = v2;
-      this.velocity.print();
-      circle.velocity.print();
-      // this.velocity = new Vector(k3 * unitVectorB + k2 * tangentVector);
-      // circle.velocity = new Vector(k1 * unitVectorA + k4 * tangentVector);
+      // 接線に垂直な成分を入れ替える
+      this.velocity = normalVector.mul(k3).add(tangentVector.mul(k2));
+      peer.velocity = normalVector.mul(k1).add(tangentVector.mul(k4));
     }
   }
 }
