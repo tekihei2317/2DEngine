@@ -27,15 +27,14 @@
     engine = new Engine(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT, 0, 10);
     const circle = new CircleEntity(100, 100, 50, 'dynamic');
     const circle2 = new CircleEntity(500, 100, 50, 'dynamic');
-    const circle3 = new CircleEntity(200, 300, 15, 'dynamic');
-    const circle4 = new CircleEntity(400, 150, 30, 'dynamic');
+
+    const rect = new RectangleEntity(150, 300, 300, 150);
 
     circle.velocity.x = 10;
     circle2.velocity.x = -10;
     engine.entities.push(circle);
     engine.entities.push(circle2);
-    // engine.entities.push(circle3);
-    // engine.entities.push(circle4);
+    engine.entities.push(rect);
 
     render();
   }
@@ -56,6 +55,9 @@
         context.closePath();
         context.fillStyle = 'white';
         context.fill();
+      } else if (entity.shape === 'rect') {
+        context.fillStyle = 'gray';
+        context.fillRect(entity.x, entity.y, entity.width, entity.height);
       }
     });
     requestAnimationFrame(render);

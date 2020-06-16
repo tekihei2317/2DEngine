@@ -51,6 +51,24 @@ class Entity {
   }
 }
 
+// 長方形を扱うクラス
+class RectangleEntity extends Entity {
+  /**
+   * @constructor
+   * @param {number} x - 左上のx座標
+   * @param {number} y - 左上のy座標
+   * @param {number} width - 長方形の横幅
+   * @param {number} height - 長方形の高さ
+   */
+  constructor(x, y, width, height) {
+    super('rect', 'static');
+    this.x = x;
+    this.y = y;
+    this.width = width;
+    this.height = height;
+  }
+}
+
 // 円を扱うクラス
 class CircleEntity extends Entity {
   /**
@@ -79,6 +97,14 @@ class CircleEntity extends Entity {
   }
 
   /**
+   * 長方形との衝突判定
+   * @param {RectangleEntity} peer 
+   */
+  collideWithRect(peer) {
+    return false;
+  }
+
+  /**
    * 円との衝突判定
    * @param {CircleEntity} circle 
    */
@@ -91,8 +117,7 @@ class CircleEntity extends Entity {
       peer.collideWithCircle(this);
       return;
     }
-
-    console.assert(dist !== 0, 'zero division will occur');
+    console.assert(dist !== 0, 'zero division will occur!');
 
     const overlap = (this.radius + peer.radius) - dist;
     const v = new Vector(peer.x - this.x, peer.y - this.y);
@@ -157,7 +182,7 @@ class Engine {
   step(elapsedTime) {
     const entities = this.entities;
     let diff_velocity = this.gravity;
-    diff_velocity = diff_velocity.mul(elapsedTime, elapsedTime);
+    diff_velocity = diff_velocity.mul(elapsedTime);
 
     // entityを移動する
     entities.forEach((entity) => {
@@ -177,13 +202,15 @@ class Engine {
       // entityAが円になるようにする(どちらかは'dynamic'=>円)
       if (entityA.shape !== 'circle') [entityA, entityB] = [entityB, entityA];
 
+      // 衝突判定&衝突処理
       if (entityB.shape === 'circle') entityA.collideWithCircle(entityB);
-      else if (entityB.shape === 'line') entityB.collideWithLine(entityB);
-      else if (entityB.shape === 'rectangle') entityB.collideWithRectangle(entityB);
+      else if (entityB.shape === 'line') entityA.collideWithLine(entityB);
+      else if (entityB.shape === 'rect') entityA.collideWithRect(entityB);
     }
 
     // 床との衝突判定&衝突処理
     entities.forEach((entity) => {
+      if (entity.motionType !== 'dynamic') return;
       if (entity.y + entity.radius >= this.worldHeight) {
         const overlap = entity.y + entity.radius - this.worldHeight;
         entity.move(0, -overlap);
@@ -193,6 +220,7 @@ class Engine {
 
     // 左右の壁との衝突判定
     entities.forEach((entity) => {
+      if (entity.motionType !== 'dynamic') return;
       if (entity.x - entity.radius <= 0 || entity.x + entity.radius >= this.worldWidth) {
         entity.velocity.x = -entity.velocity.x;
       }
