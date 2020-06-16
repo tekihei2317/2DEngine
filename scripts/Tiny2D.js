@@ -120,5 +120,13 @@ class Engine {
         entity.velocity.y = -entity.velocity.y;
       }
     });
+
+    // 左右の壁との衝突判定
+    entities.forEach((entity) => {
+      if (entity.x - entity.radius <= 0 || entity.x + entity.radius >= this.worldWidth) {
+        console.log('fuga');
+        entity.velocity.x = -entity.velocity.x;
+      }
+    });
   }
 }
