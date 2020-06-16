@@ -100,8 +100,14 @@ class CircleEntity extends Entity {
    * 長方形との衝突判定
    * @param {RectangleEntity} peer 
    */
-  collideWithRect(peer) {
-    return false;
+  collideWithRect(rect) {
+    // 衝突判定
+    const nearestX = clamp(rect.x, this.x, rect.x + rect.width);
+    const nearestY = clamp(rect.y, this.y, rect.y + rect.height);
+    const dist = Math.hypot(nearestX - this.x, nearestY - this.y);
+    if (dist > this.radius) return;
+
+
   }
 
   /**
@@ -109,6 +115,7 @@ class CircleEntity extends Entity {
    * @param {CircleEntity} circle 
    */
   collideWithCircle(peer) {
+    // 衝突判定
     const dist = Math.hypot(this.x - peer.x, this.y - peer.y);
     if (dist > this.radius + peer.radius) return;
 
@@ -226,4 +233,8 @@ class Engine {
       }
     });
   }
+}
+
+function clamp(l, x, r) {
+  return Math.max(l, Math.min(x, r));
 }

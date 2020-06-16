@@ -33,7 +33,7 @@
     circle.velocity.x = 10;
     circle2.velocity.x = -10;
     engine.entities.push(circle);
-    engine.entities.push(circle2);
+    // engine.entities.push(circle2);
     engine.entities.push(rect);
 
     render();
