@@ -5,22 +5,19 @@ class Vector {
     this.y = y;
   }
   /**
-   * ベクトルを加算する
-   * @param {number} x 
-   * @param {number} y 
+   * ベクトルを加算して返す
+   * @param {Vector}
    */
   add(vec) {
-    this.x += vec.x;
-    this.y += vec.y;
+    return new Vector(this.x + vec.x, this.y + vec.y);
   }
   /**
-   * 各成分を定数倍する
+   * 各成分を定数倍して返す
    * @param {number} kx - x成分の係数
    * @param {number} ky - y成分の係数
    */
-  mul(kx, ky) {
-    this.x *= kx;
-    this.y *= ky;
+  mul(kx, ky = kx) {
+    return new Vector(this.x * kx, this.y * ky);
   }
   /**
    * ベクトルとの内積を求める
@@ -65,7 +62,7 @@ class CircleEntity extends Entity {
     this.x = x;
     this.y = y;
     this.radius = radius;
-    this.velocity = new Vector(3, 3);
+    this.velocity = new Vector(0, 0);
   }
 
   /**
@@ -104,14 +101,23 @@ class Engine {
    * @param {number} elapsedTime 
    */
   step(elapsedTime) {
-    // const gravity = this.gravity;
-    // gravity.mul(elapsedTime, elapsedTime);
     const entities = this.entities;
+    let diff_velocity = this.gravity;
+    diff_velocity = diff_velocity.mul(elapsedTime, elapsedTime);
 
     // entityを移動する
     entities.forEach((entity) => {
       if (entity.motionType === 'dynamic') {
+        entity.velocity = entity.velocity.add(diff_velocity);
         entity.move(entity.velocity.x * elapsedTime, entity.velocity.y * elapsedTime);
+      }
+    });
+
+    // 床との衝突判定&衝突処理
+    entities.forEach((entity) => {
+      if (entity.y + entity.radius >= this.worldHeight) {
+        console.log('hoge');
+        entity.velocity.y = -entity.velocity.y;
       }
     });
   }
