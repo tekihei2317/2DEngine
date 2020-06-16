@@ -74,6 +74,17 @@ class CircleEntity extends Entity {
     this.x += dx;
     this.y += dy;
   }
+
+  /**
+   * 円との衝突判定
+   * @param {CircleEntity} circle 
+   */
+  collideWithCircle(circle) {
+    const dist = Math.hypot(this.x - circle.x, this.y - circle.y);
+    if (dist > this.radius + circle.radius) return;
+
+    console.log('collide with circle!');
+  }
 }
 
 // 物理エンジン
@@ -113,10 +124,27 @@ class Engine {
       }
     });
 
+    // 物体同士の衝突判定&衝突処理
+    const len = entities.length;
+    for (let i = 0; i < len - 1; i++) for (let j = i + 1; j < len; j++) {
+      let entityA = entities[i];
+      let entityB = entities[j];
+      if (entityA.motionType === 'static' && entityB.motionType === 'static') continue;
+
+      // どちらかの物体は動いている=>どちらかは円
+      // entityAが必ず円になるようにする
+      if (entityA.shape !== 'circle') [entityA, entityB] = [entityB, entityA];
+
+      if (entityB.shape === 'circle') {
+        entityA.collideWithCircle(entityB);
+      } else if (entityB.shape === 'line') {
+      } else if (entityB.shape === 'rectangle') {
+      }
+    }
+
     // 床との衝突判定&衝突処理
     entities.forEach((entity) => {
       if (entity.y + entity.radius >= this.worldHeight) {
-        console.log('hoge');
         entity.velocity.y = -entity.velocity.y;
       }
     });
@@ -124,7 +152,6 @@ class Engine {
     // 左右の壁との衝突判定
     entities.forEach((entity) => {
       if (entity.x - entity.radius <= 0 || entity.x + entity.radius >= this.worldWidth) {
-        console.log('fuga');
         entity.velocity.x = -entity.velocity.x;
       }
     });
