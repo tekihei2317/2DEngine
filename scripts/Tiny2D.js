@@ -193,6 +193,8 @@ class Engine {
     // 床との衝突判定&衝突処理
     entities.forEach((entity) => {
       if (entity.y + entity.radius >= this.worldHeight) {
+        const overlap = entity.y + entity.radius - this.worldHeight;
+        entity.move(0, -overlap);
         entity.velocity.y = -entity.velocity.y;
       }
     });
