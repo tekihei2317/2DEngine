@@ -123,19 +123,16 @@ class CircleEntity extends Entity {
     // 円の中心が長方形の内部に合る場合はとりあえず無視する(貫通しそう)
     if (nearestX === this.x && nearestY === this.y) return;
 
-    // めり込みを解消する
+    // 衝突処理
     const overlap = this.radius - dist;
-    let mx = 0, my = 0;
-    if (nearestY == rect.y) my = -overlap, console.log('top');
-    else if (nearestY === rect.y + rect.height) my = overlap, console.log('bottom');
-    else if (nearestX === rect.x) mx = -overlap, console.log('left');
-    else if (nearestX === rect.x + rect.width) mx = overlap, console.log('right'), console.log(overlap);
-    this.move(mx, my);
+    let mx = 0, my = 0, kx = 1, ky = 1;
+    if (nearestY === rect.y) [my, ky] = [-overlap, -1];
+    else if (nearestY === rect.y + rect.height) [my, ky] = [overlap, -1];
+    else if (nearestX === rect.x) [mx, kx] = [-overlap, -1];
+    else if (nearestX === rect.x + rect.width) [mx, kx] = [overlap, -1];
 
-    this.velocity.print();
-    if (mx !== 0) this.velocity = this.velocity.mul(-1, 1);
-    if (my !== 0) this.velocity = this.velocity.mul(1, -1);
-    this.velocity.print();
+    this.move(mx, my);
+    this.velocity = this.velocity.mul(kx, ky);
   }
 
   /**
