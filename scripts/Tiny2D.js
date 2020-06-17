@@ -51,6 +51,21 @@ class Entity {
   }
 }
 
+// 線分を扱うクラス
+class LineEntity extends Entity {
+  /**
+   * @constructor
+   * @param {number} x1 始点のx座標
+   * @param {number} y1 始点のy座標
+   * @param {number} x2 終点のx座標
+   * @param {number} y2 終点のy座標
+   */
+  constructor(x1, y1, x2, y2) {
+    super('line', 'static');
+    [this.x1, this.y1, this.x2, this.y2] = [x1, y1, x2, y2];
+  }
+}
+
 // 長方形を扱うクラス
 class RectangleEntity extends Entity {
   /**
@@ -109,6 +124,9 @@ class CircleEntity extends Entity {
     this.y += dy;
   }
 
+  collideWithLine(line) {
+    return false;
+  }
   /**
    * 長方形との衝突判定
    * @param {RectangleEntity} peer 
