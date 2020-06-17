@@ -120,29 +120,22 @@ class CircleEntity extends Entity {
     const dist = Math.hypot(nearestX - this.x, nearestY - this.y);
     if (dist > this.radius) return;
 
-    // 円の中心が長方形の内部に合る場合はとりあえず無視する
+    // 円の中心が長方形の内部に合る場合はとりあえず無視する(貫通しそう)
     if (nearestX === this.x && nearestY === this.y) return;
 
-    if (rect.isCorner(nearestX, nearestY)) {
-      this.velocity = this.velocity.mul(-0.8);
-    }
-    else {
-      const overlap = this.radius - dist;
-      // 衝突面に対して垂直なベクトル(法線ベクトル)
-      let normalVector = new Vector(0, 1);
-      if (nearestY !== rect.y && nearestY !== rect.y + rect.height) normalVector = new Vector(1, 0);
+    // めり込みを解消する
+    const overlap = this.radius - dist;
+    let mx = 0, my = 0;
+    if (nearestY == rect.y) my = -overlap, console.log('top');
+    else if (nearestY === rect.y + rect.height) my = overlap, console.log('bottom');
+    else if (nearestX === rect.x) mx = -overlap, console.log('left');
+    else if (nearestX === rect.x + rect.width) mx = overlap, console.log('right'), console.log(overlap);
+    this.move(mx, my);
 
-      // めり込みをなくす
-      if (nearestY === rect.y) this.move(0, -overlap);
-      else if (nearestY === rect.y + rect.height) this.move(0, overlap);
-      else if (nearestX === rect.x) this.move(-overlap, 0);
-      else if (nearestX === rect.x + rect.width) this.move(overlap, 0);
-
-
-      // this.velocity===k*normalVector+l*(接ベクトル)を満たすkを求める
-      const k = this.velocity.dot(normalVector);
-      this.velocity = this.velocity.add(normalVector.mul(-2 * k));
-    }
+    this.velocity.print();
+    if (mx !== 0) this.velocity = this.velocity.mul(-1, 1);
+    if (my !== 0) this.velocity = this.velocity.mul(1, -1);
+    this.velocity.print();
   }
 
   /**
