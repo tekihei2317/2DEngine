@@ -145,8 +145,14 @@ class CircleEntity extends Entity {
     // console.log(dist);
     if (dist > this.radius) return;
 
+    const overlap = this.radius - dist;
     const tangentVector = vecA.mul(1 / vecA.norm());
-    const normalVector = new Vector(-tangentVector.y, tangentVector.x);
+    let normalVector = vecC.mul(-1).add(vecA.mul(vecA.dot(vecC) / vecA.norm() / vecA.norm()));
+    // normalVector.print();
+    normalVector = normalVector.mul(1 / normalVector.norm());
+    normalVector.print();
+    // めり込みを治す
+    this.move(-normalVector.x * overlap, -normalVector.y * overlap);
     // this.velocity===k*normalVector+l*tangentVector
     const k = this.velocity.dot(normalVector);
     this.velocity = this.velocity.add(normalVector.mul(-2 * k));

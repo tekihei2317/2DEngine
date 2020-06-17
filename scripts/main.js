@@ -40,7 +40,7 @@
 
     circle.velocity.x = 20;
     circle2.velocity.x = 0;
-    circle3.velocity.x = 600;
+    circle3.velocity.x = 0;
     // engine.entities.push(circle);
     // engine.entities.push(circle2);
     engine.entities.push(circle3);
@@ -49,9 +49,9 @@
     // engine.entities.push(rect3);
     // engine.entities.push(rect4);
     engine.entities.push(line);
-    // engine.entities.push(line2);
+    engine.entities.push(line2);
     // engine.entities.push(line3);
-    // engine.entities.push(line4);
+    engine.entities.push(line4);
 
     render();
   }
