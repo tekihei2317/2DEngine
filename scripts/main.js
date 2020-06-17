@@ -25,12 +25,12 @@
     context.fillRect(0, 0, canvas.width, canvas.height);
 
     engine = new Engine(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT, 0, 10);
-    const circle = new CircleEntity(100, 100, 50, 'dynamic');
+    const circle = new CircleEntity(50, 100, 50, 'dynamic');
     const circle2 = new CircleEntity(500, 100, 50, 'dynamic');
 
     const rect = new RectangleEntity(150, 300, 300, 150);
 
-    circle.velocity.x = 10;
+    circle.velocity.x = 20;
     circle2.velocity.x = -10;
     engine.entities.push(circle);
     // engine.entities.push(circle2);

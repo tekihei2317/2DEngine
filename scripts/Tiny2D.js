@@ -67,6 +67,19 @@ class RectangleEntity extends Entity {
     this.width = width;
     this.height = height;
   }
+  /**
+   * (x, y)が長方形の四隅のいずれかであるか判定する
+   * @param {number} x - x座標
+   * @param {number} y - y座標
+   */
+  isCorner(x, y) {
+    const x1 = this.x, x2 = this.x + this.width;
+    const y1 = this.y, y2 = this.y + this.height;
+    return (
+      x === x1 && y === y1 || x === x1 && y === y2 ||
+      x === x2 && y === y1 && x === x2 && y === y2
+    );
+  }
 }
 
 // 円を扱うクラス
@@ -107,7 +120,29 @@ class CircleEntity extends Entity {
     const dist = Math.hypot(nearestX - this.x, nearestY - this.y);
     if (dist > this.radius) return;
 
+    // 円の中心が長方形の内部に合る場合はとりあえず無視する
+    if (nearestX === this.x && nearestY === this.y) return;
 
+    if (rect.isCorner(nearestX, nearestY)) {
+      this.velocity = this.velocity.mul(-0.8);
+    }
+    else {
+      const overlap = this.radius - dist;
+      // 衝突面に対して垂直なベクトル(法線ベクトル)
+      let normalVector = new Vector(0, 1);
+      if (nearestY !== rect.y && nearestY !== rect.y + rect.height) normalVector = new Vector(1, 0);
+
+      // めり込みをなくす
+      if (nearestY === rect.y) this.move(0, -overlap);
+      else if (nearestY === rect.y + rect.height) this.move(0, overlap);
+      else if (nearestX === rect.x) this.move(-overlap, 0);
+      else if (nearestX === rect.x + rect.width) this.move(overlap, 0);
+
+
+      // this.velocity===k*normalVector+l*(接ベクトル)を満たすkを求める
+      const k = this.velocity.dot(normalVector);
+      this.velocity = this.velocity.add(normalVector.mul(-2 * k));
+    }
   }
 
   /**
