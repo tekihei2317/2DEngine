@@ -33,6 +33,12 @@ class Vector {
   cross(vec) {
     return this.x * vec.y - this.y * vec.x;
   }
+  /**
+   * ベクトルの大きさを返す
+   */
+  norm() {
+    return Math.hypot(this.x, this.y);
+  }
   print() {
     console.log(`(${this.x}, ${this.y})`);
   }
@@ -125,7 +131,18 @@ class CircleEntity extends Entity {
   }
 
   collideWithLine(line) {
-    return false;
+    const frameRate = 60;
+    const v = new Vector(line.x1 - this.x, line.y1 - this.y);
+    const v1 = this.velocity.mul(1 / frameRate);
+    const v2 = new Vector(line.x2 - line.x1, line.y2 - line.y1);
+    const t1 = v.cross(v1) / v1.cross(v2);
+    const t2 = v.cross(v2) / v1.cross(v2);
+    const isCrossed = (0 <= t1 && t1 <= 1 && 0 <= t2 && t2 <= 1);
+    if (isCrossed) {
+      const normalVector = new Vector(-v2.y, v2.x).mul(1 / v2.norm());
+      const k = this.velocity.dot(normalVector);
+      this.velocity = this.velocity.add(normalVector.mul(-2 * k));
+    }
   }
   /**
    * 長方形との衝突判定
@@ -227,14 +244,13 @@ class Engine {
 
   /**
    * 引数の分だけ時間を進める
-   * @param {number} elapsedTime 
+   * @param {number} elapsedTime - 進める時間(単位: 秒)
    */
   step(elapsedTime) {
     const entities = this.entities;
-    let diff_velocity = this.gravity;
-    diff_velocity = diff_velocity.mul(elapsedTime);
+    const diff_velocity = this.gravity.mul(elapsedTime);
 
-    // entityを移動する
+    // 速度を更新してentityを移動させる
     entities.forEach((entity) => {
       if (entity.motionType === 'dynamic') {
         entity.velocity = entity.velocity.add(diff_velocity);
