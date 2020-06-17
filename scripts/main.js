@@ -27,23 +27,31 @@
     engine = new Engine(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT, 0, 1000);
     const circle = new CircleEntity(50, 100, 50, 'dynamic');
     const circle2 = new CircleEntity(500, 150, 50, 'dynamic');
-    const circle3 = new CircleEntity(300, 150, 20, 'dynamic');
+    const circle3 = new CircleEntity(300, 150, 50, 'dynamic');
 
     const rect = new RectangleEntity(150, 300, 300, 150);
     const rect2 = new RectangleEntity(100, 400, 400, 1);
+    const rect3 = new RectangleEntity(330, 300, 1, 200);
+    const rect4 = new RectangleEntity(340, 300, 200, 10);
     const line = new LineEntity(100, 400, 500, 400);
     const line2 = new LineEntity(500, 50, 500, 200);
+    const line3 = new LineEntity(300, 300, 300, 500);
+    const line4 = new LineEntity(301, 350, 500, 350);
 
     circle.velocity.x = 20;
     circle2.velocity.x = 0;
-    circle3.velocity.x = 560;
+    circle3.velocity.x = 600;
     // engine.entities.push(circle);
     // engine.entities.push(circle2);
     engine.entities.push(circle3);
     // engine.entities.push(rect);
     // engine.entities.push(rect2);
+    // engine.entities.push(rect3);
+    // engine.entities.push(rect4);
     engine.entities.push(line);
     // engine.entities.push(line2);
+    // engine.entities.push(line3);
+    // engine.entities.push(line4);
 
     render();
   }
@@ -75,6 +83,7 @@
         context.stroke();
       }
     });
-    requestAnimationFrame(render);
+    // requestAnimationFrame(render);
+    setTimeout(render, 1000 / 60);
   }
 })();

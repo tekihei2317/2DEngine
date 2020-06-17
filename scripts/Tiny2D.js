@@ -131,18 +131,26 @@ class CircleEntity extends Entity {
   }
 
   collideWithLine(line) {
-    const frameRate = 60;
-    const v = new Vector(line.x1 - this.x, line.y1 - this.y);
-    const v1 = this.velocity.mul(1 / frameRate);
-    const v2 = new Vector(line.x2 - line.x1, line.y2 - line.y1);
-    const t1 = v.cross(v1) / v1.cross(v2);
-    const t2 = v.cross(v2) / v1.cross(v2);
-    const isCrossed = (0 <= t1 && t1 <= 1 && 0 <= t2 && t2 <= 1);
-    if (isCrossed) {
-      const normalVector = new Vector(-v2.y, v2.x).mul(1 / v2.norm());
-      const k = this.velocity.dot(normalVector);
-      this.velocity = this.velocity.add(normalVector.mul(-2 * k));
-    }
+    // 線分と円の中心の最短距離を求める
+    let dist = 0;
+    const vecA = new Vector(line.x2 - line.x1, line.y2 - line.y1);
+    const vecB = vecA.mul(-1);
+    const vecC = new Vector(this.x - line.x1, this.y - line.y1);
+    const vecD = new Vector(this.x - line.x2, this.y - line.y2);
+
+    if (vecA.dot(vecC) < 0) dist = Math.hypot(this.x - line.x1, this.y - line.y1);
+    else if (vecB.dot(vecD) < 0) dist = Math.hypot(this.x - line.x2, this.y - line.y2);
+    else dist = Math.abs(vecA.cross(vecC)) / vecA.norm();
+
+    // console.log(dist);
+    if (dist > this.radius) return;
+
+    const tangentVector = vecA.mul(1 / vecA.norm());
+    const normalVector = new Vector(-tangentVector.y, tangentVector.x);
+    // this.velocity===k*normalVector+l*tangentVector
+    const k = this.velocity.dot(normalVector);
+    this.velocity = this.velocity.add(normalVector.mul(-2 * k));
+    console.log('line and circle collide!');
   }
   /**
    * 長方形との衝突判定
