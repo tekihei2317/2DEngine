@@ -32,9 +32,9 @@
 
     const line = new LineEntity(0, 500, 600, 500);
     const line2 = new LineEntity(0, 100, 600, 100);
+    const line3 = new LineEntity(10, 0, 10, CANVAS_HEIGHT);
+    const line4 = new LineEntity(590, 0, 590, CANVAS_HEIGHT);
 
-    // circle.velocity.x = 500;
-    // circle2.velocity.x = -500;
     circle.velocity.x = 600;
     circle.velocity.y = 300;
     circle2.velocity.x = -300;
@@ -44,6 +44,8 @@
     engine.entities.push(circle3);
     engine.entities.push(line);
     engine.entities.push(line2);
+    engine.entities.push(line3);
+    engine.entities.push(line4);
 
     render();
   }
@@ -76,6 +78,5 @@
       }
     });
     requestAnimationFrame(render);
-    // setTimeout(render, 1000 / 60);
   }
 })();

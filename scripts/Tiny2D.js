@@ -286,24 +286,6 @@ class Engine {
       else if (entityB.shape === 'line') entityA.collideWithLine(entityB);
       else if (entityB.shape === 'rect') entityA.collideWithRect(entityB);
     }
-
-    // 床との衝突判定&衝突処理
-    entities.forEach((entity) => {
-      if (entity.motionType !== 'dynamic') return;
-      if (entity.y + entity.radius >= this.worldHeight) {
-        const overlap = entity.y + entity.radius - this.worldHeight;
-        entity.move(0, -overlap);
-        entity.velocity.y = -entity.velocity.y;
-      }
-    });
-
-    // 左右の壁との衝突判定
-    entities.forEach((entity) => {
-      if (entity.motionType !== 'dynamic') return;
-      if (entity.x - entity.radius <= 0 || entity.x + entity.radius >= this.worldWidth) {
-        entity.velocity.x = -entity.velocity.x;
-      }
-    });
   }
 }
 
