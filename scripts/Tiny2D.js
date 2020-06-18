@@ -129,13 +129,15 @@ class CircleEntity extends Entity {
    * @param {number} y - 中心のy座標
    * @param {number} radius - 半径
    * @param {string} motionType - 動きのタイプ('static' or'dynamic')
+   * @param{number} restitution - 反発係数
    */
-  constructor(x, y, radius, motionType) {
+  constructor(x, y, radius, motionType, restitution = 1.0) {
     super('circle', motionType);
     this.x = x;
     this.y = y;
     this.radius = radius;
     this.velocity = new Vector(0, 0);
+    this.restitution = restitution;
   }
 
   /**
@@ -176,6 +178,7 @@ class CircleEntity extends Entity {
     // 衝突処理
     this.move(-normalVector.x * overlap, -normalVector.y * overlap);
     this.velocity = this.velocity.add(this.velocity.projection(normalVector).mul(-2));
+    this.velocity = this.velocity.mul(this.restitution);
   }
 
   collideWithRect(rect) {
@@ -198,6 +201,7 @@ class CircleEntity extends Entity {
 
     this.move(mx, my);
     this.velocity = this.velocity.mul(kx, ky);
+    this.velocity = this.velocity.mul(this.restitution);
   }
 
   collideWithCircle(peer) {
@@ -220,6 +224,7 @@ class CircleEntity extends Entity {
       this.move(-overlap * normalVector.x, -overlap * normalVector.y);
       const thisNormal = this.velocity.projection(normalVector);
       this.velocity = this.velocity.add(thisNormal.mul(-2));
+      this.velocity = this.velocity.mul(this.restitution);
 
     } else {
       // 動く円同士の衝突処理
@@ -231,6 +236,9 @@ class CircleEntity extends Entity {
       const peerNormal = peer.velocity.projection(normalVector);
       this.velocity = this.velocity.sub(thisNormal).add(peerNormal);
       peer.velocity = peer.velocity.sub(peerNormal).add(thisNormal);
+
+      this.velocity = this.velocity.mul(this.restitution);
+      peer.velocity = peer.velocity.mul(peer.restitution);
     }
   }
 }

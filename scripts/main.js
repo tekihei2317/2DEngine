@@ -26,18 +26,19 @@
 
     engine = new Engine(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT, 0, 1000);
 
-    const circle = new CircleEntity(100, 200, 30, 'dynamic');
-    const circle2 = new CircleEntity(500, 200, 30, 'dynamic');
+    const circle = new CircleEntity(100, 150, 30, 'dynamic', 0.8);
+    const circle2 = new CircleEntity(500, 150, 30, 'dynamic', 0.95);
     const circle3 = new CircleEntity(300, 300, 80, 'static');
 
     const line = new LineEntity(0, 500, 600, 500);
     const line2 = new LineEntity(0, 100, 600, 100);
     const line3 = new LineEntity(10, 0, 10, CANVAS_HEIGHT);
     const line4 = new LineEntity(590, 0, 590, CANVAS_HEIGHT);
+    const rect = new RectangleEntity(50, 400, 100, 50);
 
-    circle.velocity.x = 600;
-    circle.velocity.y = 300;
-    circle2.velocity.x = -300;
+    circle.velocity.x = 1000;
+    circle.velocity.y = 0;
+    circle2.velocity.x = -1000;
 
     engine.entities.push(circle)
     engine.entities.push(circle2);
@@ -46,6 +47,7 @@
     engine.entities.push(line2);
     engine.entities.push(line3);
     engine.entities.push(line4);
+    engine.entities.push(rect);
 
     render();
   }
