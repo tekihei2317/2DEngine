@@ -33,6 +33,7 @@
 
     // circle.velocity.x = 500;
     // circle2.velocity.x = -500;
+    circle.velocity.x = 600;
     circle.velocity.y = 1000;
 
     engine.entities.push(circle)

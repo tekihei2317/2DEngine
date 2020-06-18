@@ -56,6 +56,13 @@ class Vector {
     return Math.hypot(this.x, this.y);
   }
   /**
+   * ベクトルを正規化して返す
+   */
+  normalize() {
+    console.assert(this.norm() !== 0, 'zero division will occur!');
+    return new Vector(this.x / this.norm(), this.y / this.norm());
+  }
+  /**
    * 正射影ベクトルを求める
    * @param {Vector} vec - 射影する直線の方向ベクトル
    */
@@ -159,26 +166,12 @@ class CircleEntity extends Entity {
     const dist = this.calcDistToLine(line);
     if (dist > this.radius) return;
 
-    const vecA = new Vector(line.x2 - line.x1, line.y2 - line.y1);
-    const vecB = vecA.mul(-1);
-    const vecC = new Vector(this.x - line.x1, this.y - line.y1);
-    const vecD = new Vector(this.x - line.x2, this.y - line.y2);
-
+    const a = new Vector(this.x - line.x1, this.y - line.y1);
+    const l = new Vector(line.x2 - line.x1, line.y2 - line.y1);
+    const p = a.projection(l);
+    const normalVector = p.sub(a).normalize();
     const overlap = this.radius - dist;
-    const tangentVector = vecA.mul(1 / vecA.norm());
-    let normalVector = vecC.mul(-1).add(vecA.mul(vecA.dot(vecC) / vecA.norm() / vecA.norm()));
 
-    // normalVector.print();
-    if (normalVector.norm() === 0) {
-      // 円の中心と線分が一直線上にあるとき0になりそう(多分...)
-      // normalVectorは適当なのであとで修正
-      normalVector = new Vector(0, 1);
-      console.log('hoge');
-    } else {
-      normalVector = normalVector.mul(1 / normalVector.norm());
-    }
-    // normalVector.print();
-    // めり込みを治す
     this.move(-normalVector.x * overlap, -normalVector.y * overlap);
     // this.velocity===k*normalVector+l*tangentVector
     const k = this.velocity.dot(normalVector);
