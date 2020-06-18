@@ -28,16 +28,20 @@
 
     const circle = new CircleEntity(100, 200, 30, 'dynamic');
     const circle2 = new CircleEntity(500, 200, 30, 'dynamic');
-    const line = new LineEntity(0, 400, 600, 400);
-    const line2 = new LineEntity(0, 150, 600, 150);
+    const circle3 = new CircleEntity(300, 300, 80, 'static');
+
+    const line = new LineEntity(0, 500, 600, 500);
+    const line2 = new LineEntity(0, 100, 600, 100);
 
     // circle.velocity.x = 500;
     // circle2.velocity.x = -500;
     circle.velocity.x = 600;
-    circle.velocity.y = 1000;
+    circle.velocity.y = 300;
+    circle2.velocity.x = -300;
 
     engine.entities.push(circle)
     engine.entities.push(circle2);
+    engine.entities.push(circle3);
     engine.entities.push(line);
     engine.entities.push(line2);
 

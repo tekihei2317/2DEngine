@@ -177,6 +177,7 @@ class CircleEntity extends Entity {
     this.move(-normalVector.x * overlap, -normalVector.y * overlap);
     this.velocity = this.velocity.add(this.velocity.projection(normalVector).mul(-2));
   }
+
   /**
    * 長方形との衝突判定
    * @param {RectangleEntity} peer 
@@ -217,16 +218,12 @@ class CircleEntity extends Entity {
       peer.collideWithCircle(this);
       return;
     }
-    console.assert(dist !== 0, 'zero division will occur!');
 
     const overlap = (this.radius + peer.radius) - dist;
-    const v = new Vector(peer.x - this.x, peer.y - this.y);
-    // 接線に垂直な単位ベクトル(自身の中心→もう一方の中心の向き)
-    const normalVector = v.mul(1 / dist);
-    // 接線に平行な単位ベクトル
-    const tangentVector = new Vector(-normalVector.y, normalVector.x);
+    // 衝突面に垂直な単位ベクトル(自身の中心→もう一方の中心の向き)
+    const normalVector = new Vector(peer.x - this.x, peer.y - this.y).normalize();
 
-    // 相手が動いているかどうかで場合分け
+    // 衝突処理(もう一方が固定されているかどうかで場合分け)
     if (peer.motionType === 'static') {
       this.move(-overlap * normalVector.x, -overlap * normalVector.y);
       // 速度ベクトルを反射させる
@@ -238,16 +235,11 @@ class CircleEntity extends Entity {
       this.move(-normalVector.x * overlap / 2, -normalVector.y * overlap / 2);
       peer.move(normalVector.x * overlap / 2, normalVector.y * overlap / 2);
 
-      // this.velocity===k1*normalVector+k2*tangentVectorを満たすk1,k2を求める
-      const k1 = this.velocity.dot(normalVector);
-      const k2 = this.velocity.dot(tangentVector);
-      // peer.velocity===k3*normalVector+k4*tangentVectorを満たすk3,k4を求める
-      const k3 = peer.velocity.dot(normalVector);
-      const k4 = peer.velocity.dot(tangentVector);
-
-      // 接線に垂直な成分を入れ替える
-      this.velocity = normalVector.mul(k3).add(tangentVector.mul(k2));
-      peer.velocity = normalVector.mul(k1).add(tangentVector.mul(k4));
+      // 衝突面に垂直な成分を入れ替える
+      const thisNormal = this.velocity.projection(normalVector);
+      const peerNormal = peer.velocity.projection(normalVector);
+      this.velocity = this.velocity.sub(thisNormal).add(peerNormal);
+      peer.velocity = peer.velocity.sub(peerNormal).add(thisNormal);
     }
   }
 }
