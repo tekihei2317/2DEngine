@@ -25,46 +25,20 @@
     context.fillRect(0, 0, canvas.width, canvas.height);
 
     engine = new Engine(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT, 0, 1000);
-    const circle = new CircleEntity(50, 100, 50, 'dynamic');
-    const circle2 = new CircleEntity(500, 150, 50, 'dynamic');
-    const circle3 = new CircleEntity(330, 300, 30, 'dynamic');
 
-    const rect = new RectangleEntity(150, 300, 300, 150);
-    const rect2 = new RectangleEntity(100, 400, 400, 1);
-    const rect3 = new RectangleEntity(330, 300, 1, 200);
-    const rect4 = new RectangleEntity(340, 300, 200, 10);
-    const line = new LineEntity(100, 400, 500, 400);
-    const line2 = new LineEntity(500, 50, 500, 200);
-    const line3 = new LineEntity(300, 300, 300, 500);
-    const line4 = new LineEntity(301, 350, 500, 350);
-    const line5 = new LineEntity(300, 300, 500, 500);
+    const circle = new CircleEntity(100, 200, 30, 'dynamic');
+    const circle2 = new CircleEntity(500, 200, 30, 'dynamic');
+    const line = new LineEntity(0, 400, 600, 400);
+    const line2 = new LineEntity(0, 150, 600, 150);
 
-    const line6 = new LineEntity(100, 100, 100, 500);
-    const line7 = new LineEntity(50, 300, 400, 500);
-    const line8 = new LineEntity(100, 500, 500, 400);
-    const line9 = new LineEntity(400, 500, 550, 200);
-    const line10 = new LineEntity(550, 200, 100, 100);
+    // circle.velocity.x = 500;
+    // circle2.velocity.x = -500;
+    circle.velocity.y = 1000;
 
-    circle.velocity.x = 20;
-    circle2.velocity.x = 0;
-    circle3.velocity.x = 600;
-    // engine.entities.push(circle);
-    // engine.entities.push(circle2);
-    engine.entities.push(circle3);
-    // engine.entities.push(rect);
-    // engine.entities.push(rect2);
-    // engine.entities.push(rect3);
-    // engine.entities.push(rect4);
-    // engine.entities.push(line);
-    // engine.entities.push(line2);
-    // engine.entities.push(line3);
-    // engine.entities.push(line4);
-    // engine.entities.push(line5);
-    engine.entities.push(line6);
-    engine.entities.push(line7);
-    engine.entities.push(line8);
-    engine.entities.push(line9);
-    engine.entities.push(line10);
+    engine.entities.push(circle)
+    engine.entities.push(circle2);
+    engine.entities.push(line);
+    engine.entities.push(line2);
 
     render();
   }
@@ -96,7 +70,7 @@
         context.stroke();
       }
     });
-    // requestAnimationFrame(render);
-    setTimeout(render, 1000 / 60);
+    requestAnimationFrame(render);
+    // setTimeout(render, 1000 / 60);
   }
 })();

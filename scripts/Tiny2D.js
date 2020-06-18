@@ -4,12 +4,20 @@ class Vector {
     this.x = x;
     this.y = y;
   }
+
   /**
    * ベクトルを加算して返す
    * @param {Vector}
    */
   add(vec) {
     return new Vector(this.x + vec.x, this.y + vec.y);
+  }
+  /**
+   * ベクトルを引いて返す
+   * @param {Vector} vec 
+   */
+  sub(vec) {
+    return new Vector(this.x - vec.x, this.y - vec.y);
   }
   /**
    * 各成分を定数倍して返す
@@ -20,6 +28,14 @@ class Vector {
     return new Vector(this.x * kx, this.y * ky);
   }
   /**
+   * 平行なベクトルとの比を求める
+   * @param {Vector} vec 
+   */
+  div(vec) {
+    console.assert(vec.norm() !== 0, 'zero division will occur!');
+    return vec.x !== 0 ? this.x / vec.x : this.y / vec.y;
+  }
+  /**
    * ベクトルとの内積を求める
    * @param {Vector} vec 
    */
@@ -27,7 +43,7 @@ class Vector {
     return this.x * vec.x + this.y * vec.y;
   }
   /**
-   * ベクトルとの外積(2次元)を求める
+   * ベクトルとの外積(スカラー)を求める
    * @param {Vector} vec 
    */
   cross(vec) {
@@ -38,6 +54,14 @@ class Vector {
    */
   norm() {
     return Math.hypot(this.x, this.y);
+  }
+  /**
+   * 正射影ベクトルを求める
+   * @param {Vector} vec - 射影する直線の方向ベクトル
+   */
+  projection(vec) {
+    const t = this.dot(vec) / (vec.norm() * vec.norm());
+    return vec.mul(t);
   }
   print() {
     console.log(`(${this.x}, ${this.y})`);
@@ -88,19 +112,6 @@ class RectangleEntity extends Entity {
     this.width = width;
     this.height = height;
   }
-  /**
-   * (x, y)が長方形の四隅のいずれかであるか判定する
-   * @param {number} x - x座標
-   * @param {number} y - y座標
-   */
-  isCorner(x, y) {
-    const x1 = this.x, x2 = this.x + this.width;
-    const y1 = this.y, y2 = this.y + this.height;
-    return (
-      x === x1 && y === y1 || x === x1 && y === y2 ||
-      x === x2 && y === y1 && x === x2 && y === y2
-    );
-  }
 }
 
 // 円を扱うクラス
@@ -130,20 +141,28 @@ class CircleEntity extends Entity {
     this.y += dy;
   }
 
+  /**
+   * 円の中心と線分の最短距離を求める
+   * @param {LineEntity} line 
+   */
+  calcDistToLine(line) {
+    const a = new Vector(this.x - line.x1, this.y - line.y1);
+    const l = new Vector(line.x2 - line.x1, line.y2 - line.y1);
+    const p = a.projection(l);
+    let t = p.div(l);
+    t = clamp(0, t, 1);
+    return a.sub(l.mul(t)).norm();
+  }
+
   collideWithLine(line) {
-    // 線分と円の中心の最短距離を求める
-    let dist = 0;
+    // 衝突判定
+    const dist = this.calcDistToLine(line);
+    if (dist > this.radius) return;
+
     const vecA = new Vector(line.x2 - line.x1, line.y2 - line.y1);
     const vecB = vecA.mul(-1);
     const vecC = new Vector(this.x - line.x1, this.y - line.y1);
     const vecD = new Vector(this.x - line.x2, this.y - line.y2);
-
-    if (vecA.dot(vecC) < 0) dist = Math.hypot(this.x - line.x1, this.y - line.y1);
-    else if (vecB.dot(vecD) < 0) dist = Math.hypot(this.x - line.x2, this.y - line.y2);
-    else dist = Math.abs(vecA.cross(vecC)) / vecA.norm();
-
-    // console.log(dist);
-    if (dist > this.radius) return;
 
     const overlap = this.radius - dist;
     const tangentVector = vecA.mul(1 / vecA.norm());
@@ -225,7 +244,6 @@ class CircleEntity extends Entity {
       this.velocity = this.velocity.add(normalVector.mul(-2 * k));
 
     } else {
-      console.log('collision between moving circles occured!')
       // めり込みを戻す(いらない?)
       this.move(-normalVector.x * overlap / 2, -normalVector.y * overlap / 2);
       peer.move(normalVector.x * overlap / 2, normalVector.y * overlap / 2);
