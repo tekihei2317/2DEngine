@@ -32,7 +32,7 @@ class Vector {
    * @param {Vector} vec 
    */
   div(vec) {
-    console.assert(vec.norm() !== 0, 'zero division will occur!');
+    console.assert(vec.norm() !== 0, 'zero division occured!');
     return vec.x !== 0 ? this.x / vec.x : this.y / vec.y;
   }
   /**
@@ -59,7 +59,7 @@ class Vector {
    * ベクトルを正規化して返す
    */
   normalize() {
-    console.assert(this.norm() !== 0, 'zero division will occur!');
+    console.assert(this.norm() !== 0, 'zero division occured!');
     return new Vector(this.x / this.norm(), this.y / this.norm());
   }
   /**
@@ -169,14 +169,13 @@ class CircleEntity extends Entity {
     const a = new Vector(this.x - line.x1, this.y - line.y1);
     const l = new Vector(line.x2 - line.x1, line.y2 - line.y1);
     const p = a.projection(l);
+    // 線分の法線ベクトル(円の中心から線分に向かう向き)
     const normalVector = p.sub(a).normalize();
     const overlap = this.radius - dist;
 
+    // 衝突処理
     this.move(-normalVector.x * overlap, -normalVector.y * overlap);
-    // this.velocity===k*normalVector+l*tangentVector
-    const k = this.velocity.dot(normalVector);
-    this.velocity = this.velocity.add(normalVector.mul(-2 * k));
-    // console.log('line and circle collide!');
+    this.velocity = this.velocity.add(this.velocity.projection(normalVector).mul(-2));
   }
   /**
    * 長方形との衝突判定
@@ -229,7 +228,6 @@ class CircleEntity extends Entity {
 
     // 相手が動いているかどうかで場合分け
     if (peer.motionType === 'static') {
-      // めり込みを戻す(いらない?)
       this.move(-overlap * normalVector.x, -overlap * normalVector.y);
       // 速度ベクトルを反射させる
       // velocity===k*normalVector+l*tangentVectorを満たすkを求める
@@ -237,7 +235,6 @@ class CircleEntity extends Entity {
       this.velocity = this.velocity.add(normalVector.mul(-2 * k));
 
     } else {
-      // めり込みを戻す(いらない?)
       this.move(-normalVector.x * overlap / 2, -normalVector.y * overlap / 2);
       peer.move(normalVector.x * overlap / 2, normalVector.y * overlap / 2);
 
