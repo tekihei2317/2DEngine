@@ -178,10 +178,6 @@ class CircleEntity extends Entity {
     this.velocity = this.velocity.add(this.velocity.projection(normalVector).mul(-2));
   }
 
-  /**
-   * 長方形との衝突判定
-   * @param {RectangleEntity} peer 
-   */
   collideWithRect(rect) {
     // 衝突判定
     const nearestX = clamp(rect.x, this.x, rect.x + rect.width);
@@ -204,34 +200,29 @@ class CircleEntity extends Entity {
     this.velocity = this.velocity.mul(kx, ky);
   }
 
-  /**
-   * 円との衝突判定
-   * @param {CircleEntity} circle 
-   */
   collideWithCircle(peer) {
-    // 衝突判定
-    const dist = Math.hypot(this.x - peer.x, this.y - peer.y);
-    if (dist > this.radius + peer.radius) return;
-
     // 自身が止まっている場合は相手を基準にして処理し直す
     if (this.motionType === 'static') {
       peer.collideWithCircle(this);
       return;
     }
 
-    const overlap = (this.radius + peer.radius) - dist;
+    // 衝突判定
+    const dist = Math.hypot(this.x - peer.x, this.y - peer.y);
+    if (dist > this.radius + peer.radius) return;
+
     // 衝突面に垂直な単位ベクトル(自身の中心→もう一方の中心の向き)
     const normalVector = new Vector(peer.x - this.x, peer.y - this.y).normalize();
+    const overlap = (this.radius + peer.radius) - dist;
 
-    // 衝突処理(もう一方が固定されているかどうかで場合分け)
     if (peer.motionType === 'static') {
+      // 動く円と静止円の衝突処理
       this.move(-overlap * normalVector.x, -overlap * normalVector.y);
-      // 速度ベクトルを反射させる
-      // velocity===k*normalVector+l*tangentVectorを満たすkを求める
-      const k = this.velocity.dot(normalVector);
-      this.velocity = this.velocity.add(normalVector.mul(-2 * k));
+      const thisNormal = this.velocity.projection(normalVector);
+      this.velocity = this.velocity.add(thisNormal.mul(-2));
 
     } else {
+      // 動く円同士の衝突処理
       this.move(-normalVector.x * overlap / 2, -normalVector.y * overlap / 2);
       peer.move(normalVector.x * overlap / 2, normalVector.y * overlap / 2);
 
